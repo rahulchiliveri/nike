@@ -113,7 +113,7 @@
       const cart = getCart()
       if(!cart.length){ alert('Your cart is empty'); return }
       localStorage.setItem('order', JSON.stringify({items:cart, created: Date.now()}))
-      window.location.href = 'payment.html'
+      window.location.href = 'https://aquamarine-cassata-9c2902.netlify.app/payment.html'
     }
 
     // initial
