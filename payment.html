@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nike Store — Payment</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#070708;--muted:#9aa0a6;--white:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui;color:var(--white);background:linear-gradient(180deg,#070708,#0b0b0b)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
+    .container{max-width:900px;margin:18px auto;padding:0 20px}
+    .box{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:16px;border-radius:12px}
+    label{display:block;margin-top:10px;color:var(--muted);font-weight:600}
+    input{width:100%;padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.02);color:var(--white);margin-top:6px}
+    .row{display:flex;gap:12px;margin-top:12px}
+    .btn{background:#fff;color:#000;padding:10px 14px;border-radius:999px;border:none;cursor:pointer;font-weight:700}
+    .muted{color:var(--muted)}
+    footer{margin-top:36px;text-align:center;color:var(--muted);padding:24px 0}
+  </style>
+</head>
+<body>
+  <header>
+    <div style="font-weight:800">NIKE • STORE</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Payment</h1>
+
+    <div class="box" id="orderSummary"></div>
+
+    <div class="box" style="margin-top:14px">
+      <h3>Payment (Demo)</h3>
+      <label>Full name</label><input id="fullname" placeholder="Name on card">
+      <label>Card number</label><input id="cardnum" placeholder="xxxx xxxx xxxx xxxx">
+      <div class="row">
+        <div style="flex:1"><label>Expiry (MM/YY)</label><input id="exp" placeholder="MM/YY"></div>
+        <div style="flex:1"><label>CVV</label><input id="cvv" placeholder="123"></div>
+      </div>
+      <button class="btn" style="margin-top:12px" onclick="payNow()">Pay now</button>
+      <p class="muted" style="margin-top:8px">This is a demo checkout. No real card processing occurs here.</p>
+    </div>
+  </main>
+
+  <footer>© 2025 Nike Store — Demo</footer>
+
+  <script>
+    function format(n){ return '₹' + n.toLocaleString('en-IN') }
+    function getOrder(){ try{ return JSON.parse(localStorage.getItem('order')||'null') }catch(e){return null} }
+
+    function renderOrder(){
+      const o = getOrder(); const el = document.getElementById('orderSummary')
+      if(!o || !o.items || !o.items.length){ el.innerHTML = '<p>No order found. <a href="products.html">Shop</a></p>'; return }
+      let subtotal = 0; let html = '<h3>Order summary</h3>'
+      o.items.forEach(it=>{ subtotal += it.price*(it.qty||1); html += `<div style="display:flex;justify-content:space-between;margin-top:8px"><span>${it.name} × ${it.qty||1}</span><span>${format(it.price*(it.qty||1))}</span></div>` })
+      const shipping = subtotal > 4000 ? 0 : 199
+      html += `<div style="display:flex;justify-content:space-between;margin-top:12px"><strong>Subtotal</strong><strong>${format(subtotal)}</strong></div>`
+      html += `<div style="display:flex;justify-content:space-between;margin-top:6px;color:var(--muted)"><span>Shipping</span><span>${shipping?format(shipping):'Free'}</span></div>`
+      html += `<div style="display:flex;justify-content:space-between;margin-top:14px;font-size:1.05rem"><strong>Total</strong><strong>${format(subtotal+shipping)}</strong></div>`
+      el.innerHTML = html
+    }
+
+    function payNow(){
+      const name = document.getElementById('fullname').value.trim()
+      if(!name){ alert('Enter your name'); return }
+      const order = getOrder()
+      if(!order){ alert('No order found'); return }
+      const subtotal = order.items.reduce((s,i)=>s + i.price*(i.qty||1),0)
+      const shipping = subtotal > 4000 ? 0 : 199
+      const receipt = { orderId: 'NIKE-'+Date.now(), name, items: order.items, total: subtotal + shipping, date: new Date().toISOString() }
+      localStorage.setItem('lastReceipt', JSON.stringify(receipt))
+      localStorage.removeItem('cart'); localStorage.removeItem('order')
+      window.location.href = 'thankyou.html'
+    }
+
+    renderOrder()
+  </script>
+</body>
+</html>
