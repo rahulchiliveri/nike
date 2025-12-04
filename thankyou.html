@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Thank you — Nike Store</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#070708;--muted:#9aa0a6;--white:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui;color:var(--white);background:linear-gradient(180deg,#070708,#0a0a0a);display:flex;align-items:center;justify-content:center;height:100vh}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:26px;border-radius:14px;max-width:720px;width:94%;box-shadow:0 30px 60px rgba(0,0,0,0.6)}
+    h1{margin:0 0 8px}
+    .muted{color:var(--muted)}
+    .receipt{margin-top:14px;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px}
+    .btn{display:inline-block;margin-top:16px;padding:10px 14px;border-radius:999px;background:#fff;color:#000;font-weight:700;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎉 Thank you for your order!</h1>
+    <div class="muted">We've received your order and will send a confirmation email shortly.</div>
+
+    <div class="receipt" id="receipt"></div>
+
+    <div style="margin-top:12px">
+      <a class="btn" href="index.html">Back to Home</a>
+      <a class="btn" href="products.html" style="margin-left:8px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.06)">Shop more</a>
+    </div>
+  </div>
+
+  <script>
+    function format(n){ return '₹' + n.toLocaleString('en-IN') }
+    try{
+      const r = JSON.parse(localStorage.getItem('lastReceipt')||'null'); const el = document.getElementById('receipt')
+      if(!r){ el.innerHTML = '<p class="muted">No receipt available.</p>'; }
+      else{
+        let html = `<div style="display:flex;justify-content:space-between"><strong>Order ID</strong><span>${r.orderId}</span></div>
+                    <div style="display:flex;justify-content:space-between;margin-top:8px"><strong>Name</strong><span>${r.name}</span></div>
+                    <div style="margin-top:10px"><strong>Items</strong></div>`
+        r.items.forEach(it=>{
+          html += `<div style="display:flex;justify-content:space-between"><span>${it.name} × ${it.qty||1}</span><span>${format(it.price*(it.qty||1))}</span></div>`
+        })
+        html += `<div style="display:flex;justify-content:space-between;margin-top:10px"><strong>Total</strong><strong>${format(r.total)}</strong></div>`
+        el.innerHTML = html
+      }
+    }catch(e){
+      document.getElementById('receipt').innerText = 'Unable to load receipt.'
+    }
+  </script>
+</body>
+</html>
