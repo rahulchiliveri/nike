@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nike Store — Products</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b0b0b;--muted:#9aa0a6;--white:#fff}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui;color:var(--white);background:linear-gradient(180deg,#070708,#0b0b0b)}
+    header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
+    nav a{margin-left:18px;font-weight:600;color:var(--white)}
+    .container{max-width:1150px;margin:18px auto;padding:0 20px}
+    .controls{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+    .search{flex:1;padding:10px 12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:var(--white)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));padding:12px;border-radius:14px;transition:transform .22s ease}
+    .card img{width:100%;height:200px;object-fit:cover;border-radius:10px}
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+    .price{font-weight:800}
+    .btn{background:#fff;color:#000;padding:8px 12px;border-radius:999px;border:none;cursor:pointer}
+    footer{margin-top:36px;text-align:center;color:var(--muted);padding:24px 0}
+    @media(max-width:600px){ .card img{height:160px} }
+  </style>
+</head>
+<body>
+  <header>
+    <div style="font-weight:800">NIKE • STORE</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="controls">
+      <input id="q" class="search" placeholder="Search shoes, e.g. 'Pegasus'">
+      <button class="btn" onclick="renderProducts()">Search</button>
+      <a href="cart.html" class="btn" style="background:transparent;color:var(--white);border:1px solid rgba(255,255,255,0.06)">Go to Cart</a>
+    </div>
+
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <footer>© 2025 Nike Store — Demo</footer>
+
+  <script>
+    const products = [
+      {id:'p1',name:'Nike Air Zoom Pegasus',price:7499,img:'https://images.pexels.com/photos/3568543/pexels-photo-3568543.jpeg'},
+      {id:'p2',name:'Nike React Infinity',price:8999,img:'https://images.pexels.com/photos/19090/pexels-photo.jpg'},
+      {id:'p3',name:'Nike Court Vintage',price:5499,img:'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg'},
+      {id:'p4',name:'Nike Trail Runner',price:7999,img:'https://images.pexels.com/photos/267202/pexels-photo-267202.jpeg'},
+      {id:'p5',name:'Nike Air Max Retro',price:9999,img:'https://images.pexels.com/photos/428340/pexels-photo-428340.jpeg'},
+      {id:'p6',name:'Nike Everyday Slip',price:4299,img:'https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg'}
+    ]
+
+    function getCart(){ try{ return JSON.parse(localStorage.getItem('cart')||'[]') }catch(e){return[]} }
+    function saveCart(c){ localStorage.setItem('cart', JSON.stringify(c)); updateCartCount() }
+    function updateCartCount(){ document.getElementById('cart-count').innerText = getCart().reduce((s,i)=>s+(i.qty||1),0) }
+
+    function addToCart(product){
+      const cart = getCart(); const existing = cart.find(it=>it.id===product.id)
+      if(existing) existing.qty = Math.min(10,(existing.qty||1)+1)
+      else cart.push({...product, qty:1})
+      saveCart(cart)
+      const btn = document.querySelector(`[data-id="${product.id}"]`)
+      if(btn){ btn.innerText='Added'; setTimeout(()=> btn.innerText='Add to cart',900) }
+    }
+
+    function renderProducts(){
+      const grid = document.getElementById('grid')
+      grid.innerHTML = ''
+      const q = document.getElementById('q').value.trim().toLowerCase()
+      const list = products.filter(p=> p.name.toLowerCase().includes(q) )
+      list.forEach(p=>{
+        const card = document.createElement('div'); card.className='card'
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" onerror="this.onerror=null;this.src='https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg'">
+          <div style="margin-top:8px;font-weight:700">${p.name}</div>
+          <div style="color:var(--muted);margin-top:6px">Comfort • Performance • Style</div>
+          <div class="meta">
+            <div class="price">₹${p.price.toLocaleString('en-IN')}</div>
+            <div>
+              <button class="btn" data-id="${p.id}" onclick='addToCart(${JSON.stringify(p)})'>Add to cart</button>
+            </div>
+          </div>
+        `
+        grid.appendChild(card)
+      })
+    }
+
+    renderProducts(); updateCartCount()
+  </script>
+</body>
+</html>
